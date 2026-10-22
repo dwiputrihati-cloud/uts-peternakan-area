@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pendataan Populasi Ayam Broiler - Kab. Sidrap</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                        },
+                        amber: {
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans text-slate-800 antialiased">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-emerald-800 via-green-700 to-emerald-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="p-2 bg-white/10 rounded-xl backdrop-blur-md border border-white/20">
+                        <i class="fa-solid fa-[#ffffff] fa-drumstick-bite text-2xl text-amber-300"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight sm:text-xl">SIPOMA SIDRAP</h1>
+                        <p class="text-xs text-emerald-200">Sistem Informasi & Pendataan Broiler Kabupaten Sidenreng Rappang</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex space-x-1">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all bg-white/20 text-white shadow-sm">
+                        <i class="fa-solid fa-chart-pie mr-2"></i>Dashboard
+                    </button>
+                    <button onclick="switchTab('peta')" id="nav-peta" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-emerald-100 hover:bg-white/10 hover:text-white">
+                        <i class="fa-solid fa-map-location-dot mr-2"></i>Peta Wilayah
+                    </button>
+                    <button onclick="switchTab('data')" id="nav-data" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-emerald-100 hover:bg-white/10 hover:text-white">
+                        <i class="fa-solid fa-table-list mr-2"></i>Data Kandang
+                    </button>
+                </nav>
+
+                <!-- Action Button -->
+                <button onclick="openFormModal()" class="bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold px-4 py-2 rounded-lg text-sm shadow-md transition transform hover:-translate-y-0.5 flex items-center gap-2">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Tambah Data</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Nav Bar -->
+        <div class="md:hidden flex border-t border-emerald-600/50 bg-emerald-900/50 backdrop-blur">
+            <button onclick="switchTab('dashboard')" id="mobile-nav-dashboard" class="flex-1 py-2 text-center text-xs font-medium text-white border-b-2 border-amber-400">
+                <i class="fa-solid fa-chart-pie block text-base mb-0.5"></i>Dashboard
+            </button>
+            <button onclick="switchTab('peta')" id="mobile-nav-peta" class="flex-1 py-2 text-center text-xs font-medium text-emerald-200">
+                <i class="fa-solid fa-map-location-dot block text-base mb-0.5"></i>Peta Wilayah
+            </button>
+            <button onclick="switchTab('data')" id="mobile-nav-data" class="flex-1 py-2 text-center text-xs font-medium text-emerald-200">
+                <i class="fa-solid fa-table-list block text-base mb-0.5"></i>Data Kandang
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <section id="tab-dashboard" class="tab-content space-y-6">
+            <!-- Summary Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Total Populasi -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Total Populasi Aktif</p>
+                        <h3 class="text-2xl font-bold text-slate-800" id="stat-total-populasi">0</h3>
+                        <p class="text-xs text-emerald-600 font-medium mt-1"><i class="fa-solid fa-feather mr-1"></i>Ekor Ayam Broiler</p>
+                    </div>
+                    <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                        <i class="fa-solid fa-egg text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- Total Kandang & Peternak -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Jumlah Kandang</p>
+                        <h3 class="text-2xl font-bold text-slate-800" id="stat-total-kandang">0</h3>
+                        <p class="text-xs text-slate-500 mt-1"><span id="stat-peternak-mandiri">0</span> Mandiri | <span id="stat-peternak-kemitraan">0</span> Kemitraan</p>
+                    </div>
+                    <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600">
+                        <i class="fa-solid fa-warehouse text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- Tipe Kandang -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Teknologi Kandang</p>
+                        <div class="flex items-baseline space-x-2">
+                            <span class="text-lg font-bold text-emerald-700" id="stat-closed-house">0</span>
+                            <span class="text-xs text-slate-500">Closed</span>
+                            <span class="text-slate-300">/</span>
+                            <span class="text-lg font-bold text-amber-700" id="stat-open-house">0</span>
+                            <span class="text-xs text-slate-500">Open</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Sistem Pemeliharaan</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                        <i class="fa-solid fa-fan text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- Estimasi Panen Bulanan -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">Siap Panen (Minggu Ini)</p>
+                        <h3 class="text-2xl font-bold text-slate-800" id="stat-siap-panen">0</h3>
+                        <p class="text-xs text-amber-600 font-medium mt-1"><i class="fa-solid fa-truck-ramp-box mr-1"></i>Estimasi <span id="stat-tonase">0</span> Ton Daging</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600">
+                        <i class="fa-solid fa-weight-scale text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Bar Chart: Populasi per Kecamatan -->
+                <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="font-bold text-slate-800 text-lg">Distribusi Populasi per Kecamatan</h2>
+                            <p class="text-xs text-slate-500">Total sebaran ayam broiler aktif di 11 Kecamatan Kab. Sidrap</p>
+                        </div>
+                        <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full font-medium border border-emerald-200">Sidrap Sentra Perunggasan</span>
+                    </div>
+                    <div class="relative flex-1 min-h-[300px]">
+                        <canvas id="chartKecamatan"></canvas>
+                    </div>
+                </div>
+
+                <!-- Doughnut Chart: Sektor & Status -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between space-y-6">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-lg mb-1">Proporsi Sektor Usaha</h2>
+                        <p class="text-xs text-slate-500 mb-4">Perbandingan Pola Kemitraan vs Mandiri</p>
+                        <div class="relative h-48">
+                            <canvas id="chartSektor"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-4">
+                        <h3 class="font-semibold text-slate-700 text-sm mb-2">Status Pemeliharaan</h3>
+                        <div class="space-y-2 text-xs" id="status-breakdown">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: PETA WILAYAH ================= -->
+        <section id="tab-peta" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-xl">Visualisasi Wilayah Sentra Ayam Broiler</h2>
+                        <p class="text-sm text-slate-500">Peta kepadatan populasi populasi per kecamatan di Kab. Sidenreng Rappang</p>
+                    </div>
+
+                    <!-- Legend -->
+                    <div class="flex items-center gap-4 text-xs font-medium bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+                            <span>Tinggi (> 100k)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                            <span>Sedang (40k - 100k)</span>
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                            <span>Rendah (< 40k)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid Interactive Cards for 11 Kecamatans -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4" id="map-grid">
+                    <!-- Cards will be populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: DATA KANDANG (TABLE) ================= -->
+        <section id="tab-data" class="tab-content hidden space-y-4">
+            <!-- Filter & Search Bar -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 space-y-4 md:space-y-0 md:flex md:items-center md:justify-between gap-4">
+                <!-- Search Input -->
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="applyFilters()" placeholder="Cari nama peternak, usaha, desa, atau kecamatan..." class="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Filter Kecamatan -->
+                    <select id="filter-kecamatan" onchange="applyFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">Semua Kecamatan</option>
+                        <option value="Maritengngae">Maritengngae</option>
+                        <option value="Panca Rijang">Panca Rijang</option>
+                        <option value="Baranti">Baranti</option>
+                        <option value="Tellu Limpoe">Tellu Limpoe</option>
+                        <option value="Watang Pulu">Watang Pulu</option>
+                        <option value="Dua Pitue">Dua Pitue</option>
+                        <option value="Pitu Riawa">Pitu Riawa</option>
+                        <option value="Pitu Riase">Pitu Riase</option>
+                        <option value="Watang Sidenreng">Watang Sidenreng</option>
+                        <option value="Kulu">Kulu</option>
+                        <option value="Panca Lautang">Panca Lautang</option>
+                    </select>
+
+                    <!-- Filter Tipe Kandang -->
+                    <select id="filter-jenis" onchange="applyFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">Semua Tipe Kandang</option>
+                        <option value="Closed House">Closed House</option>
+                        <option value="Open House">Open House</option>
+                    </select>
+
+                    <!-- Filter Status -->
+                    <select id="filter-status" onchange="applyFilters()" class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="">Semua Status</option>
+                        <option value="Masa Pemeliharaan">Masa Pemeliharaan</option>
+                        <option value="Siap Panen">Siap Panen</option>
+                        <option value="Pasca Panen / Persiapan">Pasca Panen / Persiapan</option>
+                    </select>
+
+                    <!-- Export CSV Button -->
+                    <button onclick="exportToCSV()" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-2 rounded-xl font-medium transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-excel"></i>
+                        <span>Export CSV</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Table Card -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/80 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+                                <th class="py-3.5 px-4">Peternak & Usaha</th>
+                                <th class="py-3.5 px-4">Lokasi (Kec/Desa)</th>
+                                <th class="py-3.5 px-4">Tipe Kandang</th>
+                                <th class="py-3.5 px-4 text-right">Populasi / Kapasitas</th>
+                                <th class="py-3.5 px-4">Umur & Check-In</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- Rows will be injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden py-12 text-center">
+                    <i class="fa-solid fa-folder-open text-4xl text-slate-300 mb-2"></i>
+                    <p class="text-slate-500 text-sm font-medium">Tidak ada data kandang yang sesuai kriteria.</p>
+                </div>
+
+                <!-- Table Footer Info -->
+                <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex justify-between items-center">
+                    <span>Menampilkan <strong id="displayed-count">0</strong> data kandang</span>
+                    <button onclick="resetDataMock()" class="text-xs text-slate-400 hover:text-red-600 underline">Reset Data Standar</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal Form (Tambah / Edit Data Kandang) -->
+    <div id="modal-form" class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden transform transition-all">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-emerald-800 to-green-700 px-6 py-4 text-white flex justify-between items-center">
+                <h3 class="font-bold text-lg" id="modal-title">Pendataan Kandang Baru</h3>
+                <button onclick="closeFormModal()" class="text-emerald-100 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="kandang-form" onsubmit="saveData(event)" class="p-6 space-y-4">
+                <input type="hidden" id="form-id">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Nama Peternak -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Peternak / Pemilik *</label>
+                        <input type="text" id="form-nama" required placeholder="Contoh: H. Rusli" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Sektor Usaha / Kemitraan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Sektor Usaha / Pt Kemitraan</label>
+                        <input type="text" id="form-kemitraan" placeholder="Contoh: Mandiri / PT. Japfa / PT. Charoen Pokphand" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Kecamatan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kecamatan *</label>
+                        <select id="form-kecamatan" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="">-- Pilih Kecamatan --</option>
+                            <option value="Maritengngae">Maritengngae</option>
+                            <option value="Panca Rijang">Panca Rijang</option>
+                            <option value="Baranti">Baranti</option>
+                            <option value="Tellu Limpoe">Tellu Limpoe</option>
+                            <option value="Watang Pulu">Watang Pulu</option>
+                            <option value="Dua Pitue">Dua Pitue</option>
+                            <option value="Pitu Riawa">Pitu Riawa</option>
+                            <option value="Pitu Riase">Pitu Riase</option>
+                            <option value="Watang Sidenreng">Watang Sidenreng</option>
+                            <option value="Kulu">Kulu</option>
+                            <option value="Panca Lautang">Panca Lautang</option>
+                        </select>
+                    </div>
+
+                    <!-- Desa / Kelurahan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Desa / Kelurahan *</label>
+                        <input type="text" id="form-desa" required placeholder="Contoh: Lautang Salo" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Jenis Kandang -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Jenis Kandang *</label>
+                        <select id="form-jenis" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Closed House">Closed House (Kandang Tertutup)</option>
+                            <option value="Open House">Open House (Kandang Terbuka)</option>
+                        </select>
+                    </div>
+
+                    <!-- Kapasitas Maksimal -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kapasitas Kandang (Ekor) *</label>
+                        <input type="number" id="form-kapasitas" required min="500" placeholder="Contoh: 20000" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Populasi Saat Ini -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Populasi Ayam Saat Ini (Ekor) *</label>
+                        <input type="number" id="form-populasi" required min="0" placeholder="Contoh: 18500" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Umur Ayam -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Umur Ayam / DOC (Hari) *</label>
+                        <input type="number" id="form-umur" required min="0" max="60" placeholder="Contoh: 24" class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Tanggal Check-In -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tanggal Check-In / Tebar *</label>
+                        <input type="date" id="form-checkin" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+
+                    <!-- Status Pemeliharaan -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Status Operasional *</label>
+                        <select id="form-status" required class="w-full text-sm px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="Masa Pemeliharaan">Masa Pemeliharaan</option>
+                            <option value="Siap Panen">Siap Panen (Umur > 28 hari)</option>
+                            <option value="Pasca Panen / Persiapan">Pasca Panen / Persiapan Kandang</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeFormModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">Batal</button>
+                    <button type="submit" class="px-5 py-2 text-xs font-semibold text-slate-900 bg-amber-400 hover:bg-amber-500 rounded-xl shadow-md transition">Simpan Data</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 text-sm border border-slate-700">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-message">Pesan notifikasi</span>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        // Data Awal Mockup Khusus Kabupaten Sidrap Sentra Perunggasan
+        const INITIAL_MOCK_DATA = [
+            {
+                id: "SDR-001",
+                nama: "H. Syamsuddin",
+                kemitraan: "PT. Japfa Comfeed",
+                kecamatan: "Maritengngae",
+                desa: "Lautang Salo",
+                jenis: "Closed House",
+                kapasitas: 40000,
+                populasi: 38500,
+                umur: 28,
+                checkin: "2026-09-24",
+                status: "Siap Panen"
+            },
+            {
+                id: "SDR-002",
+                nama: "H. Beddu Solo",
+                kemitraan: "Mandiri",
+                kecamatan: "Panca Rijang",
+                desa: "Rappang",
+                jenis: "Closed House",
+                kapasitas: 50000,
+                populasi: 48000,
+                umur: 18,
+                checkin: "2026-10-04",
+                status: "Masa Pemeliharaan"
+            },
+            {
+                id: "SDR-003",
+                nama: "Usman Ali",
+                kemitraan: "PT. Charoen Pokphand",
+                kecamatan: "Baranti",
+                desa: "Duampanua",
+                jenis: "Open House",
+                kapasitas: 15000,
+                populasi: 14200,
+                umur: 32,
+                checkin: "2026-09-20",
+                status: "Siap Panen"
+            },
+            {
+                id: "SDR-004",
+                nama: "CV. Sidrap Poultry",
+                kemitraan: "Mandiri",
+                kecamatan: "Tellu Limpoe",
+                desa: "Massaile",
+                jenis: "Closed House",
+                kapasitas: 60000,
+                populasi: 58000,
+                umur: 12,
+                checkin: "2026-10-10",
+                status: "Masa Pemeliharaan"
+            },
+            {
+                id: "SDR-005",
+                nama: "Ahmad Malik",
+                kemitraan: "PT. Malindo Feedmill",
+                kecamatan: "Watang Pulu",
+                desa: "Auliah",
+                jenis: "Closed House",
+                kapasitas: 30000,
+                populasi: 29000,
+                umur: 5,
+                checkin: "2026-10-17",
+                status: "Masa Pemeliharaan"
+            },
+            {
+                id: "SDR-006",
+                nama: "H. Mustafa",
+                kemitraan: "Mandiri",
+                kecamatan: "Dua Pitue",
+                desa: "Tanru Tedong",
+                jenis: "Open House",
+                kapasitas: 20000,
+                populasi: 0,
+                umur: 0,
+                checkin: "2026-09-01",
+                status: "Pasca Panen / Persiapan"
+            },
+            {
+                id: "SDR-007",
+                nama: "Kipra Utama Farm",
+                kemitraan: "PT. Ciomas Adisatwa",
+                kecamatan: "Pitu Riawa",
+                desa: "Dongi",
+                jenis: "Closed House",
+                kapasitas: 35000,
+                populasi: 34000,
+                umur: 22,
+                checkin: "2026-09-30",
+                status: "Masa Pemeliharaan"
+            },
+            {
+                id: "SDR-008",
+                nama: "H. Abd. Rahman",
+                kemitraan: "Mandiri",
+                kecamatan: "Watang Sidenreng",
+                desa: "Empagae",
+                jenis: "Open House",
+                kapasitas: 12000,
+                populasi: 11500,
+                umur: 30,
+                checkin: "2026-09-22",
+                status: "Siap Panen"
+            }
+        ];
+
+        // Daftar 11 Kecamatan di Kab. Sidrap
+        const ALL_KECAMATAN = [
+            "Maritengngae", "Panca Rijang", "Baranti", "Tellu Limpoe", 
+            "Watang Pulu", "Dua Pitue", "Pitu Riawa", "Pitu Riase", 
+            "Watang Sidenreng", "Kulu", "Panca Lautang"
+        ];
+
+        // Global State
+        let kandangData = [];
+        let chartKecamatanInstance = null;
+        let chartSektorInstance = null;
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            loadLocalData();
+            updateDashboard();
+            renderMapGrid();
+            renderTable();
+            initCharts();
+        });
+
+        // Local Storage Helper
+        function loadLocalData() {
+            const stored = localStorage.getItem('sidrap_broiler_data');
+            if (stored) {
+                try {
+                    kandangData = JSON.parse(stored);
+                } catch(e) {
+                    kandangData = [...INITIAL_MOCK_DATA];
+                }
+            } else {
+                kandangData = [...INITIAL_MOCK_DATA];
+                saveToLocalStorage();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('sidrap_broiler_data', JSON.stringify(kandangData));
+        }
+
+        function resetDataMock() {
+            if (confirm("Apakah Anda yakin ingin mengembalikan data ke sampel standar Sidrap? Data buatan Anda akan terhapus.")) {
+                kandangData = [...INITIAL_MOCK_DATA];
+                saveToLocalStorage();
+                refreshAllViews();
+                showToast("Data telah dikembalikan ke mode standar.", "info");
+            }
+        }
+
+        // Navigation Tabs Controller
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            // Style nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-white/20', 'text-white', 'shadow-sm');
+                btn.classList.add('text-emerald-100');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.add('bg-white/20', 'text-white', 'shadow-sm');
+                activeBtn.classList.remove('text-emerald-100');
+            }
+
+            if(tabName === 'dashboard') {
+                updateCharts();
+            }
+        }
+
+        // Dashboard Stat Calculations
+        function updateDashboard() {
+            let totalPopulasi = 0;
+            let totalKandang = kandangData.length;
+            let mandiriCount = 0;
+            let kemitraanCount = 0;
+            let closedHouseCount = 0;
+            let openHouseCount = 0;
+            let siapPanenEkor = 0;
+
+            kandangData.forEach(item => {
+                const pop = Number(item.populasi) || 0;
+                totalPopulasi += pop;
+
+                if (item.jenis === 'Closed House') closedHouseCount++;
+                else openHouseCount++;
+
+                if (item.kemitraan && item.kemitraan.toLowerCase().includes('mandiri')) {
+                    mandiriCount++;
+                } else {
+                    kemitraanCount++;
+                }
+
+                if (item.status === 'Siap Panen') {
+                    siapPanenEkor += pop;
+                }
+            });
+
+            // Format angka
+            document.getElementById('stat-total-populasi').innerText = totalPopulasi.toLocaleString('id-ID');
+            document.getElementById('stat-total-kandang').innerText = totalKandang;
+            document.getElementById('stat-peternak-mandiri').innerText = mandiriCount;
+            document.getElementById('stat-peternak-kemitraan').innerText = kemitraanCount;
+            document.getElementById('stat-closed-house').innerText = closedHouseCount;
+            document.getElementById('stat-open-house').innerText = openHouseCount;
+            document.getElementById('stat-siap-panen').innerText = siapPanenEkor.toLocaleString('id-ID');
+
+            // Estimasi Tonase (Asumsi rata-rata bobot 1.8 kg / ekor)
+            const tonase = ((siapPanenEkor * 1.8) / 1000).toFixed(1);
+            document.getElementById('stat-tonase').innerText = tonase;
+
+            // Breakdown Status
+            const statusCounts = {
+                'Masa Pemeliharaan': 0,
+                'Siap Panen': 0,
+                'Pasca Panen / Persiapan': 0
+            };
+
+            kandangData.forEach(item => {
+                if (statusCounts[item.status] !== undefined) {
+                    statusCounts[item.status]++;
+                }
+            });
+
+            const statusContainer = document.getElementById('status-breakdown');
+            statusContainer.innerHTML = `
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-600"><span class="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2"></span>Masa Pemeliharaan:</span>
+                    <span class="font-bold text-slate-800">${statusCounts['Masa Pemeliharaan']} Kandang</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-600"><span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-2"></span>Siap Panen:</span>
+                    <span class="font-bold text-slate-800">${statusCounts['Siap Panen']} Kandang</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-600"><span class="inline-block w-2 h-2 rounded-full bg-slate-400 mr-2"></span>Pasca Panen:</span>
+                    <span class="font-bold text-slate-800">${statusCounts['Pasca Panen / Persiapan']} Kandang</span>
+                </div>
+            `;
+        }
+
+        // Interactive Map / District Grid Cards
+        function renderMapGrid() {
+            const mapGrid = document.getElementById('map-grid');
+            mapGrid.innerHTML = '';
+
+            // Group data by kecamatan
+            const kecTotals = {};
+            ALL_KECAMATAN.forEach(k => kecTotals[k] = { populasi: 0, kandang: 0 });
+
+            kandangData.forEach(item => {
+                if (kecTotals[item.kecamatan]) {
+                    kecTotals[item.kecamatan].populasi += Number(item.populasi) || 0;
+                    kecTotals[item.kecamatan].kandang += 1;
+                }
+            });
+
+            ALL_KECAMATAN.forEach(kec => {
+                const pop = kecTotals[kec].populasi;
+                const totalKandang = kecTotals[kec].kandang;
+
+                // Indikator Warna Kepadatan
+                let badgeBg = "bg-slate-100 text-slate-700 border-slate-300";
+                let statusText = "Rendah";
+                let badgeColor = "bg-slate-400";
+
+                if (pop > 100000) {
+                    badgeBg = "bg-emerald-50 text-emerald-800 border-emerald-300";
+                    statusText = "Sangat Tinggi";
+                    badgeColor = "bg-emerald-500";
+                } else if (pop >= 40000) {
+                    badgeBg = "bg-amber-50 text-amber-800 border-amber-300";
+                    statusText = "Sedang";
+                    badgeColor = "bg-amber-500";
+                }
+
+                const cardHtml = `
+                    <div class="bg-slate-50 hover:bg-white p-4 rounded-xl border border-slate-200 hover:border-emerald-500 hover:shadow-md transition group">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="font-bold text-slate-800 group-hover:text-emerald-700 transition">${kec}</h3>
+                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full border ${badgeBg}">
+                                <span class="w-1.5 h-1.5 rounded-full ${badgeColor}"></span>
+                                ${statusText}
+                            </span>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-500">Total Populasi:</span>
+                                <span class="font-bold text-slate-800">${pop.toLocaleString('id-ID')} ekor</span>
+                            </div>
+                            <div class="flex justify-between text-xs">
+                                <span class="text-slate-500">Jumlah Kandang:</span>
+                                <span class="font-semibold text-slate-700">${totalKandang} Unit</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                mapGrid.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Render Table Data (CRUD Display)
+        function renderTable(dataToRender = null) {
+            const tableBody = document.getElementById('table-body');
+            const emptyState = document.getElementById('empty-state');
+            const list = dataToRender || kandangData;
+
+            document.getElementById('displayed-count').innerText = list.length;
+
+            if (list.length === 0) {
+                tableBody.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            tableBody.innerHTML = list.map(item => {
+                // Status badge styling
+                let statusBadge = "bg-slate-100 text-slate-700 border-slate-200";
+                if (item.status === 'Masa Pemeliharaan') statusBadge = "bg-blue-50 text-blue-700 border-blue-200";
+                if (item.status === 'Siap Panen') statusBadge = "bg-emerald-50 text-emerald-700 border-emerald-200";
+
+                return `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-3 px-4">
+                            <div class="font-semibold text-slate-800">${item.nama}</div>
+                            <div class="text-xs text-slate-400"><i class="fa-solid fa-handshake text-slate-300 mr-1"></i>${item.kemitraan || 'Mandiri'}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="text-slate-700 font-medium">${item.kecamatan}</div>
+                            <div class="text-xs text-slate-400">Desa ${item.desa}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="text-xs px-2.5 py-1 rounded-lg border font-medium ${item.jenis === 'Closed House' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-amber-50 text-amber-700 border-amber-200'}">
+                                ${item.jenis}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="font-bold text-slate-800">${Number(item.populasi).toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-500">ekor</span></div>
+                            <div class="text-xs text-slate-400">Max: ${Number(item.kapasitas).toLocaleString('id-ID')}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="text-slate-700 font-medium">${item.umur} Hari</div>
+                            <div class="text-xs text-slate-400">DOC: ${item.checkin}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <span class="inline-block text-xs px-2.5 py-1 rounded-full border font-semibold ${statusBadge}">
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <button onclick="editData('${item.id}')" title="Edit Data" class="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button onclick="deleteData('${item.id}')" title="Hapus Data" class="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Filtering Function
+        function applyFilters() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const kec = document.getElementById('filter-kecamatan').value;
+            const jenis = document.getElementById('filter-jenis').value;
+            const status = document.getElementById('filter-status').value;
+
+            const filtered = kandangData.filter(item => {
+                const matchQuery = item.nama.toLowerCase().includes(query) ||
+                                   (item.kemitraan && item.kemitraan.toLowerCase().includes(query)) ||
+                                   item.desa.toLowerCase().includes(query) ||
+                                   item.kecamatan.toLowerCase().includes(query);
+
+                const matchKec = kec === '' || item.kecamatan === kec;
+                const matchJenis = jenis === '' || item.jenis === jenis;
+                const matchStatus = status === '' || item.status === status;
+
+                return matchQuery && matchKec && matchJenis && matchStatus;
+            });
+
+            renderTable(filtered);
+        }
+
+        // Modal Handler
+        function openFormModal(isEdit = false) {
+            if (!isEdit) {
+                document.getElementById('kandang-form').reset();
+                document.getElementById('form-id').value = '';
+                document.getElementById('modal-title').innerText = 'Pendataan Kandang Baru';
+                document.getElementById('form-checkin').valueAsDate = new Date();
+            }
+            document.getElementById('modal-form').classList.remove('hidden');
+        }
+
+        function closeFormModal() {
+            document.getElementById('modal-form').classList.add('hidden');
+        }
+
+        // Save Form (Create & Update)
+        function saveData(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('form-id').value;
+            const nama = document.getElementById('form-nama').value.trim();
+            const kemitraan = document.getElementById('form-kemitraan').value.trim() || 'Mandiri';
+            const kecamatan = document.getElementById('form-kecamatan').value;
+            const desa = document.getElementById('form-desa').value.trim();
+            const jenis = document.getElementById('form-jenis').value;
+            const kapasitas = Number(document.getElementById('form-kapasitas').value);
+            const populasi = Number(document.getElementById('form-populasi').value);
+            const umur = Number(document.getElementById('form-umur').value);
+            const checkin = document.getElementById('form-checkin').value;
+            const status = document.getElementById('form-status').value;
+
+            if (id) {
+                // Edit existing
+                const index = kandangData.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    kandangData[index] = { id, nama, kemitraan, kecamatan, desa, jenis, kapasitas, populasi, umur, checkin, status };
+                    showToast("Data kandang berhasil diperbarui!");
+                }
+            } else {
+                // Create new
+                const newId = "SDR-" + String(Date.now()).slice(-4);
+                kandangData.unshift({ id: newId, nama, kemitraan, kecamatan, desa, jenis, kapasitas, populasi, umur, checkin, status });
+                showToast("Data kandang baru berhasil ditambahkan!");
+            }
+
+            saveToLocalStorage();
+            refreshAllViews();
+            closeFormModal();
+        }
+
+        // Edit Data
+        function editData(id) {
+            const item = kandangData.find(d => d.id === id);
+            if (!item) return;
+
+            document.getElementById('form-id').value = item.id;
+            document.getElementById('form-nama').value = item.nama;
+            document.getElementById('form-kemitraan').value = item.kemitraan;
+            document.getElementById('form-kecamatan').value = item.kecamatan;
+            document.getElementById('form-desa').value = item.desa;
+            document.getElementById('form-jenis').value = item.jenis;
+            document.getElementById('form-kapasitas').value = item.kapasitas;
+            document.getElementById('form-populasi').value = item.populasi;
+            document.getElementById('form-umur').value = item.umur;
+            document.getElementById('form-checkin').value = item.checkin;
+            document.getElementById('form-status').value = item.status;
+
+            document.getElementById('modal-title').innerText = 'Edit Data Kandang (' + item.id + ')';
+            openFormModal(true);
+        }
+
+        // Delete Data
+        function deleteData(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus record data kandang ini?")) {
+                kandangData = kandangData.filter(item => item.id !== id);
+                saveToLocalStorage();
+                refreshAllViews();
+                showToast("Data kandang berhasil dihapus.", "warning");
+            }
+        }
+
+        function refreshAllViews() {
+            updateDashboard();
+            renderMapGrid();
+            applyFilters();
+            updateCharts();
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (kandangData.length === 0) {
+                showToast("Tidak ada data untuk diexport", "warning");
+                return;
+            }
+
+            const headers = ["ID", "Nama Peternak", "Kemitraan", "Kecamatan", "Desa", "Jenis Kandang", "Kapasitas (Ekor)", "Populasi Saat Ini (Ekor)", "Umur (Hari)", "Tanggal CheckIn", "Status"];
+            
+            const rows = kandangData.map(item => [
+                `"${item.id}"`,
+                `"${item.nama}"`,
+                `"${item.kemitraan}"`,
+                `"${item.kecamatan}"`,
+                `"${item.desa}"`,
+                `"${item.jenis}"`,
+                item.kapasitas,
+                item.populasi,
+                item.umur,
+                `"${item.checkin}"`,
+                `"${item.status}"`
+            ]);
+
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Data_Ayam_Broiler_Sidrap_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showToast("Export file CSV berhasil diunduh.");
+        }
+
+        // Chart.js Visualizations
+        function initCharts() {
+            // Chart 1: Bar Chart Kecamatan
+            const ctxKec = document.getElementById('chartKecamatan').getContext('2d');
+            chartKecamatanInstance = new Chart(ctxKec, {
+                type: 'bar',
+                data: getKecamatanChartData(),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            ticks: {
+                                callback: function(value) {
+                                    return value >= 1000 ? (value/1000) + 'k' : value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Doughnut Chart Sektor Usaha
+            const ctxSektor = document.getElementById('chartSektor').getContext('2d');
+            chartSektorInstance = new Chart(ctxSektor, {
+                type: 'doughnut',
+                data: getSektorChartData(),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function getKecamatanChartData() {
+            const totals = {};
+            ALL_KECAMATAN.forEach(k => totals[k] = 0);
+
+            kandangData.forEach(item => {
+                if (totals[item.kecamatan] !== undefined) {
+                    totals[item.kecamatan] += Number(item.populasi) || 0;
+                }
+            });
+
+            return {
+                labels: ALL_KECAMATAN,
+                datasets: [{
+                    label: 'Populasi Ayam (Ekor)',
+                    data: ALL_KECAMATAN.map(k => totals[k]),
+                    backgroundColor: '#22c55e',
+                    borderRadius: 8,
+                    hoverBackgroundColor: '#16a34a'
+                }]
+            };
+        }
+
+        function getSektorChartData() {
+            let mandiri = 0;
+            let kemitraan = 0;
+
+            kandangData.forEach(item => {
+                if (item.kemitraan && item.kemitraan.toLowerCase().includes('mandiri')) {
+                    mandiri += Number(item.populasi) || 0;
+                } else {
+                    kemitraan += Number(item.populasi) || 0;
+                }
+            });
+
+            return {
+                labels: ['Kemitraan', 'Mandiri'],
+                datasets: [{
+                    data: [kemitraan, mandiri],
+                    backgroundColor: ['#22c55e', '#f59e0b'],
+                    borderWidth: 0
+                }]
+            };
+        }
+
+        function updateCharts() {
+            if (chartKecamatanInstance && chartSektorInstance) {
+                chartKecamatanInstance.data = getKecamatanChartData();
+                chartKecamatanInstance.update();
+
+                chartSektorInstance.data = getSektorChartData();
+                chartSektorInstance.update();
+            }
+        }
+
+        // Notification Toast Helper
+        function showToast(message, type = "success") {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            const iconEl = document.getElementById('toast-icon');
+
+            msgEl.innerText = message;
+
+            if (type === "warning") {
+                iconEl.className = "fa-solid fa-circle-exclamation text-amber-400 text-lg";
+            } else if (type === "info") {
+                iconEl.className = "fa-solid fa-circle-info text-blue-400 text-lg";
+            } else {
+                iconEl.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
