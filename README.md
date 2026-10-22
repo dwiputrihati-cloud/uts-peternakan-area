@@ -1,1 +1,0 @@
-# uts-peternakan-area
